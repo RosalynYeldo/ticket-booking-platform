@@ -24,15 +24,22 @@ A full-stack, real-time ticket booking platform for high-concurrency event sales
 
 ### 1. Clone & Configure Environment Variables
 
-git clone [https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git](https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git)
+git clone [https://github.com/RosalynYeldo/ticket-booking-platform.git](https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git)
+
 cd YOUR_REPO_NAME
+
 cp .env.example .env
 
 ###2. RUn with docker
+
 docker compose up -d --build
 
 ###3. Apply Migrations & Seed Database
 
 docker compose exec backend npx prisma migrate dev
+
+
 docker compose exec backend npx prisma db seed
+
+
 Access the frontend at http://localhost:3000 and the backend at http://localhost:4000.
