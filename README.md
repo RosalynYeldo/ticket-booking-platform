@@ -30,7 +30,7 @@ cd YOUR_REPO_NAME
 
 cp .env.example .env
 
-### 2. RUn with docker
+### 2. Run with docker
 
 docker compose up -d --build
 
