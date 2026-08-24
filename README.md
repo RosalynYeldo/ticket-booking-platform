@@ -30,11 +30,11 @@ cd YOUR_REPO_NAME
 
 cp .env.example .env
 
-###2. RUn with docker
+### 2. RUn with docker
 
 docker compose up -d --build
 
-###3. Apply Migrations & Seed Database
+### 3. Apply Migrations & Seed Database
 
 docker compose exec backend npx prisma migrate dev
 
