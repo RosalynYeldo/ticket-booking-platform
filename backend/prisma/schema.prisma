@@ -1,0 +1,150 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  ORGANISER
+  CUSTOMER
+}
+
+enum SeatStatus {
+  AVAILABLE
+  HELD
+  HELD_FOR_WAITLIST
+  BOOKED
+}
+
+enum HoldStatus {
+  ACTIVE
+  EXPIRED
+  CONVERTED
+}
+
+enum WaitlistStatus {
+  WAITING
+  OFFERED
+  EXPIRED
+  FULFILLED
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+}
+
+model User {
+  id             String          @id @default(uuid())
+  email          String          @unique
+  password       String
+  role           Role            @default(CUSTOMER)
+  createdEvents  Event[]         @relation("OrganiserEvents")
+  seatHolds      SeatHold[]
+  waitlistEntry WaitlistEntry[]
+  bookings       Booking[]
+  createdAt      DateTime        @default(now())
+}
+
+model Venue {
+  id         String         @id @default(uuid())
+  name       String
+  rows       Int
+  cols       Int
+  categories SeatCategory[]
+  seats      Seat[]
+  events     Event[]
+}
+
+model SeatCategory {
+  id             String          @id @default(uuid())
+  venueId        String
+  venue          Venue           @relation(fields: [venueId], references: [id])
+  name           String          // e.g. "VIP", "Standard"
+  price          Float
+  seats          Seat[]
+  waitlistEntry WaitlistEntry[]
+}
+
+model Seat {
+  id          String        @id @default(uuid())
+  venueId     String
+  venue       Venue         @relation(fields: [venueId], references: [id])
+  categoryId  String
+  category    SeatCategory  @relation(fields: [categoryId], references: [id])
+  row         Int
+  col         Int
+  seatNumber  String
+  eventSeats  EventSeat[]
+}
+
+model Event {
+  id             String          @id @default(uuid())
+  organiserId    String
+  organiser      User            @relation("OrganiserEvents", fields: [organiserId], references: [id])
+  venueId        String
+  venue          Venue           @relation(fields: [venueId], references: [id])
+  title          String
+  startTime      DateTime
+  endTime        DateTime
+  eventSeats     EventSeat[]
+  waitlistEntry WaitlistEntry[]
+  bookings       Booking[]
+}
+
+model EventSeat {
+  id         String     @id @default(uuid())
+  eventId    String
+  event      Event      @relation(fields: [eventId], references: [id])
+  seatId     String
+  seat       Seat       @relation(fields: [seatId], references: [id])
+  status     SeatStatus @default(AVAILABLE)
+  version    Int        @default(1)
+  seatHolds  SeatHold[]
+  bookings   Booking[]
+
+  @@unique([eventId, seatId])
+}
+
+model SeatHold {
+  id          String     @id @default(uuid())
+  eventSeatId String
+  eventSeat   EventSeat  @relation(fields: [eventSeatId], references: [id])
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  expiresAt   DateTime
+  status      HoldStatus @default(ACTIVE)
+  createdAt   DateTime   @default(now())
+}
+
+model WaitlistEntry {
+  id             String         @id @default(uuid())
+  eventId        String
+  event          Event          @relation(fields: [eventId], references: [id])
+  categoryId     String
+  category       SeatCategory   @relation(fields: [categoryId], references: [id])
+  userId         String
+  user           User           @relation(fields: [userId], references: [id])
+  position       Int
+  status         WaitlistStatus @default(WAITING)
+  offerToken     String?        @unique
+  offerExpiresAt DateTime?
+  createdAt      DateTime       @default(now())
+}
+
+model Booking {
+  id          String        @id @default(uuid())
+  bookingRef  String        @unique @default(uuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  eventId     String
+  event       Event         @relation(fields: [eventId], references: [id])
+  eventSeatId String
+  eventSeat   EventSeat     @relation(fields: [eventSeatId], references: [id])
+  status      BookingStatus @default(CONFIRMED)
+  createdAt   DateTime      @default(now())
+}
