@@ -43,3 +43,9 @@ docker compose exec backend npx prisma db seed
 
 
 Access the frontend at http://localhost:3000 and the backend at http://localhost:4000.
+
+
+
+Deployment- Frontend (Vercel), Backend(Render), Database(Neon.tech), redis(Upstach)
+
+ticket-booking-platform-git-main-rosalynyeldo-5621s-projects.vercel.app
